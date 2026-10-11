@@ -109,7 +109,7 @@ For AI coding agents, **read [`AGENTS.md`](AGENTS.md) first.** The agent contrac
 
 **Expected site:** https://chandus-garage.github.io/playquest-arcade/
 
-The public repository is connected and its `main` branch is deployed automatically by `.github/workflows/pages.yml` after validation. In GitHub, select **Settings → Pages → Build and deployment → Source: GitHub Actions** once if Pages has not already been configured. The included workflow validates games and deploys after successful pushes to `main` (pull requests validate only). A successful GitHub Actions deployment confirms the URL above is serving the updated version.
+The code is on GitHub. **One-time Pages activation is required by a repository admin:** select **Settings → Pages → Build and deployment → Source: GitHub Actions**. The included `.github/workflows/pages.yml` validates games and automatically deploys after successful pushes to `main` (pull requests validate only). Until that setting is enabled and the publish job succeeds, the site URL above is not yet live. After enabling it, visit **Actions → Validate and publish PlayQuest Arcade**, choose the most recent workflow run, and **Re-run failed jobs**; the publish job will retry without a new code change.
 
 To work on it on a different computer:
 

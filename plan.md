@@ -21,7 +21,7 @@ A welcoming, free public catalog of imaginative 2D browser games built from kids
 
 - [ ] Review the games and confirm public display of each author credit
 - [x] Create public `chandus-garage/playquest-arcade` repository
-- [ ] Publish the initial files to the public `main` branch
+- [x] Publish the initial files to the public `main` branch
 - [ ] Enable GitHub Pages with **GitHub Actions** as deployment source
 - [ ] Check published catalog, play buttons, and HTML downloads on phone/desktop
 - [ ] Choose and add a LICENSE if public reuse/contributions are intended
