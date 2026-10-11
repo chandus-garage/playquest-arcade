@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f8f6ff">
+  <meta name="description" content="A growing collection of free, imaginative, standalone 2D browser games for kids and families. Play online or download to play offline.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <title>PlayQuest Arcade — Little ideas. Big adventures.</title>
+</head>
+<body>
+  <a class="skip-link" href="#games">Skip to the games</a>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="PlayQuest Arcade home">
+        <span class="brand-icon" aria-hidden="true">✦</span>
+        <span class="brand-text"><strong>PlayQuest</strong><small>ARCADE</small></span>
+      </a>
+      <span class="header-message"><span class="header-dot" aria-hidden="true"></span> Free to play · Made for fun</span>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-inner">
+          <span class="eyebrow"><span aria-hidden="true">✷</span> IMAGINATION, UNLOCKED</span>
+          <h1 id="hero-title">Little ideas.<br><em>Big adventures.</em></h1>
+          <p>Pick your next adventure, jump straight into the action, or save a game to play offline. Every game begins with a big idea.</p>
+          <a class="hero-button" href="#games">Explore games <span aria-hidden="true">↘</span></a>
+          <div class="hero-stats"><span>🎮 <strong>{{GAME_COUNT}}</strong> games to explore</span><span>✨ Standalone 2D adventures</span><span>💜 No sign-up needed</span></div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-back"></div>
+          <div class="planet planet-pink"></div>
+          <div class="planet planet-gold"></div>
+          <div class="orbit orbit-front"></div>
+          <div class="gamepad"><span class="dpad">✚</span><span class="button-group">● ●</span><span class="gamepad-glint">✦</span></div>
+          <span class="hero-star hero-star-one">✳</span><span class="hero-star hero-star-two">✦</span><span class="hero-star hero-star-three">✦</span>
+        </div>
+      </section>
+
+      <section class="catalog-section" id="games" aria-labelledby="games-title">
+        <div class="catalog-heading">
+          <div><span class="section-kicker">THE GAME COLLECTION</span><h2 id="games-title">Choose your quest <span aria-hidden="true">✦</span></h2><p>New worlds are just one click away.</p></div>
+          <div class="search-wrap"><label for="game-search" class="sr-only">Search games</label><span aria-hidden="true">⌕</span><input id="game-search" type="search" placeholder="Find a game..." autocomplete="off"></div>
+        </div>
+        <p id="search-status" class="sr-only" role="status" aria-live="polite"></p>
+        <div class="game-grid" id="game-grid">
+{{GAME_CARDS}}
+        </div>
+        <div id="no-results" class="no-results" hidden><span aria-hidden="true">🔎</span><h3>No games found</h3><p>Try searching for a different game, theme, or author.</p><button id="reset-search" type="button">Show all games</button></div>
+      </section>
+
+      <section class="bottom-strip" aria-label="About this arcade">
+        <div class="strip-emoji" aria-hidden="true">💡</div>
+        <div><h2>Every great game starts with an idea.</h2><p>Created from kids' imaginations and brought to life with Muse AI. Every game is a standalone HTML file, ready to play in a browser.</p></div>
+        <span class="strip-stars" aria-hidden="true">✷ ✦ ✷</span>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span><strong>PlayQuest Arcade</strong> · Dream it. Play it. Share it.</span><span>Free games · No accounts, ads, or tracking</span></footer>
+  </div>
+  <script src="assets/catalog.js" defer></script>
+</body>
+</html>

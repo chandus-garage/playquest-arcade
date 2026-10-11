@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#fff7fc" />
+  <link rel="icon" href="data:," />
+  <title>Rainbow Danger</title>
+  <style>
+
+    :root {
+      color-scheme: light dark;
+      --page: #fff7fc;
+      --ink: #271c38;
+      --muted: #625773;
+      --panel: #ffffff;
+      --panel-soft: #fff0f8;
+      --line: #eadbea;
+      --shadow: 0 18px 55px rgba(89, 46, 91, .18);
+      --button: #3b2a54;
+      --button-ink: #ffffff;
+      --focus: #0a7c7b;
+      --gold: #ffc342;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #171321;
+        --ink: #fff6ff;
+        --muted: #d0c6d8;
+        --panel: #241d30;
+        --panel-soft: #30233b;
+        --line: #493b56;
+        --shadow: 0 18px 55px rgba(0, 0, 0, .35);
+        --button: #fff4ff;
+        --button-ink: #24152e;
+        --focus: #73e4dc;
+        --gold: #ffd35d;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background:
+        radial-gradient(circle at 18% 8%, color-mix(in srgb, #ff7aa8 14%, transparent), transparent 30rem),
+        radial-gradient(circle at 90% 90%, color-mix(in srgb, #5fd6d2 13%, transparent), transparent 28rem),
+        var(--page);
+      color: var(--ink);
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+      padding: clamp(10px, 2.5vw, 28px);
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+
+    .game-shell {
+      width: min(1120px, 100%);
+      display: grid;
+      gap: 12px;
+    }
+    .hud {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 54px;
+    }
+    .journey {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      min-width: 0;
+    }
+    .color-step {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--c);
+      opacity: .26;
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c), #000 16%);
+      transition: opacity .25s, transform .25s;
+    }
+    .color-step.done { opacity: .7; }
+    .color-step.active { opacity: 1; transform: translateY(-3px); }
+    .hud-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .spark-icon { color: #f3a900; font-size: 1.25em; filter: drop-shadow(0 1px 0 #9f5600); }
+    .heart { color: #ef4770; letter-spacing: 2px; }
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: min(70vh, 700px);
+      overflow: hidden;
+      border-radius: 28px 28px 18px 18px;
+      box-shadow: var(--shadow);
+      background: #b9edff;
+      border: 4px solid color-mix(in srgb, var(--panel) 80%, transparent);
+      isolation: isolate;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      padding: clamp(14px, 4vw, 42px);
+      background: rgba(24, 16, 35, .24);
+    }
+    .overlay[hidden] { display: none; }
+    .card {
+      width: min(570px, 100%);
+      padding: clamp(20px, 4vw, 38px);
+      background: color-mix(in srgb, var(--panel) 96%, transparent);
+      color: var(--ink);
+      border: 2px solid color-mix(in srgb, var(--panel) 70%, #fff);
+      border-radius: 30px 16px 30px 16px;
+      box-shadow: 0 22px 70px rgba(40, 22, 55, .3);
+      text-align: center;
+    }
+    .card h1, .card h2 {
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+      margin: 0;
+      line-height: .95;
+      letter-spacing: -.035em;
+    }
+    .card h1 { font-size: clamp(42px, 8vw, 76px); }
+    .card h2 { font-size: clamp(30px, 5vw, 50px); }
+    .card p {
+      margin: 16px auto 0;
+      max-width: 43ch;
+      color: var(--muted);
+      font-size: clamp(15px, 2vw, 19px);
+      line-height: 1.45;
+    }
+    .mini-rainbow {
+      display: flex;
+      gap: 5px;
+      margin: 18px auto 0;
+      width: min(280px, 72%);
+    }
+    .mini-rainbow i { height: 8px; flex: 1; background: var(--c); border-radius: 10px; }
+    .primary {
+      margin-top: 22px;
+      min-height: 54px;
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 17px;
+      background: var(--button);
+      color: var(--button-ink);
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 0 color-mix(in srgb, var(--button), #000 28%);
+    }
+    .primary:active { transform: translateY(4px); box-shadow: 0 2px 0 color-mix(in srgb, var(--button), #000 28%); }
+    .tip {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 10px 18px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    kbd {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-bottom-width: 3px;
+      border-radius: 7px;
+      padding: 3px 7px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .control {
+      min-height: 74px;
+      border: 0;
+      border-radius: 16px 16px 26px 26px;
+      cursor: pointer;
+      color: #271c38;
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: clamp(18px, 2.4vw, 24px);
+      font-weight: 700;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: inset 0 -6px 0 rgba(35, 19, 47, .18), 0 8px 22px rgba(52, 30, 66, .12);
+    }
+    .control:active, .control.pressed { transform: translateY(3px); box-shadow: inset 0 -3px 0 rgba(35, 19, 47, .18); }
+    #jumpBtn { background: #ffd557; }
+    #duckBtn { background: #7be2d2; }
+    #throwBtn { display: none; grid-column: 1 / -1; background: #ff8eaf; }
+    .controls.boss #jumpBtn { display: none; }
+    .controls.boss #duckBtn { display: none; }
+    .controls.boss #throwBtn { display: block; }
+    .creator-credit { margin: 0; text-align: center; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .help {
+      margin: 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 8px; align-content: start; }
+      .game-shell { gap: 8px; }
+      .hud { grid-template-columns: 1fr auto; gap: 7px; }
+      .journey { grid-column: 1 / -1; grid-row: 2; }
+      .hud-chip { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+      .icon-button { width: 36px; height: 36px; }
+      .stage { border-radius: 20px 20px 12px 12px; border-width: 3px; }
+      .overlay { padding: 8px 28px; }
+      .card { padding: 10px 12px; border-radius: 20px 10px; }
+      .card h1 { font-size: 34px; line-height: .88; }
+      .card h2 { font-size: 28px; }
+      .card p { margin-top: 7px; font-size: 12px; line-height: 1.25; }
+      .mini-rainbow { margin-top: 8px; }
+      .mini-rainbow i { height: 5px; }
+      .primary { margin-top: 9px; min-height: 36px; padding: 6px 14px; border-radius: 12px; font-size: 15px; box-shadow: 0 4px 0 color-mix(in srgb, var(--button), #000 28%); }
+      .tip { display: none; }
+      .control { min-height: 64px; }
+      .help { display: none; }
+    }
+    @media (max-height: 650px) and (orientation: landscape) {
+      body { padding: 6px 12px; }
+      .game-shell { width: min(920px, 100%); gap: 6px; }
+      .hud { min-height: 34px; }
+      .hud-chip, .icon-button { min-height: 32px; height: 32px; }
+      .stage { max-height: calc(100dvh - 132px); width: auto; justify-self: center; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .control { min-height: 52px; }
+      .help { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .color-step { transition: none; }
+      .primary:active, .control:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell" aria-label="Rainbow Danger adventure game">
+    <section class="hud" aria-label="Game status">
+      <div class="journey" aria-label="Seven color journey">
+        <span class="color-step active" style="--c:#f04d5e" aria-label="Red level"></span>
+        <span class="color-step" style="--c:#ff8a3d" aria-label="Orange level"></span>
+        <span class="color-step" style="--c:#f7cf3f" aria-label="Yellow level"></span>
+        <span class="color-step" style="--c:#4cc56b" aria-label="Green level"></span>
+        <span class="color-step" style="--c:#3e9cec" aria-label="Blue level"></span>
+        <span class="color-step" style="--c:#5454c9" aria-label="Indigo level"></span>
+        <span class="color-step" style="--c:#a862d5" aria-label="Violet level"></span>
+      </div>
+      <div class="hud-chip" aria-live="polite"><span class="spark-icon">✦</span><span id="sparkCount">0 / 6</span></div>
+      <div class="hud-chip"><span class="heart" id="hearts" aria-label="3 hearts">♥♥♥</span></div>
+      <button class="icon-button" id="soundBtn" aria-label="Turn sound off" title="Sound">♪</button>
+    </section>
+
+    <section class="stage" id="stage">
+      <canvas id="game" width="960" height="540" aria-label="Rainbow Girl adventure area"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="card" id="card">
+          <h1>Rainbow<br>Danger</h1>
+          <div class="mini-rainbow" aria-hidden="true">
+            <i style="--c:#f04d5e"></i><i style="--c:#ff8a3d"></i><i style="--c:#f7cf3f"></i><i style="--c:#4cc56b"></i><i style="--c:#3e9cec"></i><i style="--c:#5454c9"></i><i style="--c:#a862d5"></i>
+          </div>
+          <p>Leap, duck, and gather every sparkle through seven colorful lands. Then use their magic to rescue the rainbow!</p>
+          <button class="primary" id="cardBtn">Begin the adventure</button>
+          <div class="tip"><span><kbd>↑</kbd> jump</span><span><kbd>↓</kbd> duck</span><span>or use the big buttons</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls" id="controls" aria-label="Game controls">
+      <button class="control" id="jumpBtn" aria-label="Jump">↑ Jump</button>
+      <button class="control" id="duckBtn" aria-label="Duck">↓ Duck</button>
+      <button class="control" id="throwBtn" aria-label="Throw a sparkle">✦ Throw a sparkle!</button>
+    </section>
+    <p class="help" id="helpText">Jump over ground obstacles. Duck under flying ones. Collect all six sparkles to unlock the next color.</p>
+    <p class="creator-credit">Idea &amp; vision: <strong>Sriya Yalamanchili</strong> · Created using: <strong>Muse AI</strong></p>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+      const overlay = document.getElementById('overlay');
+      const card = document.getElementById('card');
+      const cardBtn = document.getElementById('cardBtn');
+      const sparkCount = document.getElementById('sparkCount');
+      const heartsEl = document.getElementById('hearts');
+      const soundBtn = document.getElementById('soundBtn');
+      const controls = document.getElementById('controls');
+      const jumpBtn = document.getElementById('jumpBtn');
+      const duckBtn = document.getElementById('duckBtn');
+      const throwBtn = document.getElementById('throwBtn');
+      const helpText = document.getElementById('helpText');
+      const steps = [...document.querySelectorAll('.color-step')];
+
+      const W = 960, H = 540, ground = 430;
+      const LEVEL_GOAL = 6;
+      const levels = [
+        { name: 'Ruby Ridge', color: '#ef4f62', sky: '#ffd3d8', ground: '#b9354b', accent: '#8e2138', motif: 'crystal' },
+        { name: 'Tangerine Trail', color: '#ff8a3d', sky: '#ffe0bd', ground: '#d76524', accent: '#8d3512', motif: 'sun' },
+        { name: 'Golden Glade', color: '#f6cc35', sky: '#fff3ad', ground: '#d7a91a', accent: '#85630c', motif: 'flower' },
+        { name: 'Emerald Garden', color: '#42bf68', sky: '#c9f2c7', ground: '#268a4b', accent: '#13572e', motif: 'leaf' },
+        { name: 'Sapphire Shore', color: '#3899e8', sky: '#c4eaff', ground: '#2174ba', accent: '#124d82', motif: 'wave' },
+        { name: 'Indigo Night', color: '#5556c7', sky: '#ced0ff', ground: '#37378f', accent: '#25225f', motif: 'moon' },
+        { name: 'Violet Valley', color: '#a65bd2', sky: '#ead0f7', ground: '#7b3ba4', accent: '#4e246c', motif: 'star' }
+      ];
+
+      let mode = 'title';
+      let levelIndex = 0;
+      let hearts = 3;
+      let collected = 0;
+      let bank = 0;
+      let soundOn = true;
+      let audioCtx = null;
+      let last = 0;
+      let spawnTimer = 0;
+      let obstacleTimer = 0;
+      let clearTimer = 0;
+      let worldOffset = 0;
+      let duckHeld = false;
+      let objects = [];
+      let particles = [];
+      let shots = [];
+      let enemyShots = [];
+      let bossHealth = 14;
+      let bossShotTimer = 1.6;
+      let hurtFlash = 0;
+      let shake = 0;
+      let titleTime = 0;
+
+      const player = { x: 172, y: ground - 96, w: 58, h: 96, vy: 0, onGround: true, duck: false, invincible: 0 };
+
+      function rr(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, radius);
+      }
+      function circle(x, y, r, fill) {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill();
+      }
+      function starPath(x, y, outer, inner, points = 5, rotation = -Math.PI / 2) {
+        ctx.beginPath();
+        for (let i = 0; i < points * 2; i++) {
+          const r = i % 2 ? inner : outer;
+          const a = rotation + i * Math.PI / points;
+          const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+      }
+      function colorMix(hex, amount) {
+        const n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255;
+        const t = amount < 0 ? 0 : 255, p = Math.abs(amount);
+        return `rgb(${Math.round((t-r)*p+r)},${Math.round((t-g)*p+g)},${Math.round((t-b)*p+b)})`;
+      }
+      function tone(freq, duration = .08, type = 'sine', volume = .05) {
+        if (!soundOn) return;
+        try {
+          audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type; osc.frequency.value = freq;
+          gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch (_) {}
+      }
+      function successChime() {
+        [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, .18, 'sine', .06), i * 90));
+      }
+      function updateHUD() {
+        sparkCount.textContent = mode === 'boss' ? `${Math.max(0, bank)} magic` : `${collected} / ${LEVEL_GOAL}`;
+        heartsEl.textContent = '♥'.repeat(hearts) + '♡'.repeat(3 - hearts);
+        heartsEl.setAttribute('aria-label', `${hearts} ${hearts === 1 ? 'heart' : 'hearts'}`);
+        steps.forEach((el, i) => {
+          el.classList.toggle('done', i < levelIndex || mode === 'won');
+          el.classList.toggle('active', mode !== 'boss' && mode !== 'won' && i === levelIndex);
+        });
+      }
+      function showCard(title, text, button, action, final = false) {
+        overlay.hidden = false;
+        card.innerHTML = `
+          <h2>${title}</h2>
+          ${final ? '<div class="mini-rainbow" aria-hidden="true"><i style="--c:#f04d5e"></i><i style="--c:#ff8a3d"></i><i style="--c:#f7cf3f"></i><i style="--c:#4cc56b"></i><i style="--c:#3e9cec"></i><i style="--c:#5454c9"></i><i style="--c:#a862d5"></i></div>' : ''}
+          <p>${text}</p>
+          <button class="primary" id="cardBtnNext">${button}</button>`;
+        const next = document.getElementById('cardBtnNext');
+        next.addEventListener('click', action, { once: true });
+        requestAnimationFrame(() => next.focus());
+      }
+      function hideCard() { overlay.hidden = true; canvas.focus?.(); }
+
+      function resetPlayer() {
+        player.y = ground - 96; player.h = 96; player.vy = 0; player.onGround = true; player.duck = false; player.invincible = 0;
+        duckHeld = false;
+      }
+      function startLevel(index) {
+        levelIndex = index; mode = 'playing'; hearts = 3; collected = 0; objects = []; particles = []; shots = []; enemyShots = [];
+        spawnTimer = .45; obstacleTimer = 1.8; clearTimer = 0; worldOffset = 0; hurtFlash = 0;
+        resetPlayer(); hideCard(); controls.classList.remove('boss');
+        helpText.textContent = 'Jump over ground obstacles. Duck under flying ones. Collect all six sparkles to unlock the next color.';
+        updateHUD();
+        tone(392 + index * 45, .15, 'triangle', .05);
+      }
+      function beginBoss() {
+        mode = 'boss'; hearts = 3; bossHealth = 14; bossShotTimer = 1.4; objects = []; particles = []; shots = []; enemyShots = []; hurtFlash = 0;
+        resetPlayer(); hideCard(); controls.classList.add('boss');
+        helpText.textContent = 'Tap Throw or press X to launch rainbow magic at the Shadow Snatcher.';
+        updateHUD();
+      }
+      function restartGame() {
+        bank = 0; levelIndex = 0; controls.classList.remove('boss'); startLevel(0);
+      }
+
+      function jump() {
+        if (mode !== 'playing') return;
+        if (player.onGround && !player.duck) {
+          player.vy = -610; player.onGround = false; tone(310, .08, 'square', .025);
+        }
+      }
+      function setDuck(on) {
+        if (mode !== 'playing') return;
+        duckHeld = on;
+      }
+      function throwSparkle() {
+        if (mode !== 'boss' || bank <= 0) return;
+        if (shots.length > 2) return;
+        shots.push({ x: player.x + 54, y: player.y + 34, vx: 640, life: 2, spin: 0 });
+        bank--; tone(740, .09, 'triangle', .045); updateHUD();
+      }
+
+      function bindHold(button, onStart, onEnd) {
+        const down = e => { e.preventDefault(); button.classList.add('pressed'); onStart(); };
+        const up = e => { e.preventDefault(); button.classList.remove('pressed'); onEnd?.(); };
+        button.addEventListener('pointerdown', down);
+        button.addEventListener('pointerup', up);
+        button.addEventListener('pointercancel', up);
+        button.addEventListener('pointerleave', e => { if (e.buttons) up(e); });
+      }
+      bindHold(jumpBtn, jump);
+      bindHold(duckBtn, () => setDuck(true), () => setDuck(false));
+      bindHold(throwBtn, throwSparkle);
+      cardBtn.addEventListener('click', () => startLevel(0));
+      soundBtn.addEventListener('click', () => {
+        soundOn = !soundOn;
+        soundBtn.textContent = soundOn ? '♪' : '×';
+        soundBtn.setAttribute('aria-label', soundOn ? 'Turn sound off' : 'Turn sound on');
+        if (soundOn) tone(620, .1, 'sine', .04);
+      });
+      window.addEventListener('keydown', e => {
+        if (['ArrowUp', 'ArrowDown', 'Space'].includes(e.code)) e.preventDefault();
+        if ((e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') && !e.repeat) jump();
+        if ((e.code === 'ArrowDown' || e.code === 'KeyS')) setDuck(true);
+        if ((e.code === 'KeyX' || e.code === 'Enter') && !e.repeat) throwSparkle();
+      });
+      window.addEventListener('keyup', e => {
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') setDuck(false);
+      });
+
+      function addBurst(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2, s = 45 + Math.random() * 150;
+          particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 20, life: .5 + Math.random() * .55, color, size: 2 + Math.random() * 5 });
+        }
+      }
+      function spawnSparkle() {
+        const heights = [ground - 38, ground - 112, ground - 168];
+        objects.push({ kind: 'sparkle', x: W + 30, y: heights[Math.floor(Math.random() * heights.length)], r: 17, pulse: Math.random() * 6.2, taken: false });
+      }
+      function spawnObstacle() {
+        const high = Math.random() > .54;
+        if (high) objects.push({ kind: 'obstacle', type: 'high', x: W + 30, y: ground - 91, w: 78, h: 30, hit: false });
+        else objects.push({ kind: 'obstacle', type: 'low', x: W + 30, y: ground - 51, w: 54, h: 51, hit: false });
+      }
+      function overlap(a, b, pad = 0) {
+        return a.x + pad < b.x + b.w && a.x + a.w - pad > b.x && a.y + pad < b.y + b.h && a.y + a.h - pad > b.y;
+      }
+      function hurt() {
+        if (player.invincible > 0) return;
+        hearts--; player.invincible = 1.35; hurtFlash = .22; shake = 10;
+        tone(105, .2, 'sawtooth', .045); updateHUD();
+        if (hearts <= 0) {
+          const wasBoss = mode === 'boss';
+          mode = 'paused';
+          if (wasBoss) {
+            setTimeout(() => showCard('Your magic is still bright', 'The Shadow Snatcher got one lucky shot. All your saved sparkles are back—ready for a rematch?', 'Try the finale again', () => { bank = levels.length * LEVEL_GOAL; beginBoss(); }), 180);
+          } else {
+            setTimeout(() => showCard('Try that color again', 'Those obstacles were sneaky. Your sparkle magic is safe—take a breath and give it another go!', 'Try again', () => startLevel(levelIndex)), 180);
+          }
+        }
+      }
+
+      function updatePlayer(dt) {
+        player.invincible = Math.max(0, player.invincible - dt);
+        if (duckHeld && player.onGround) {
+          if (!player.duck) { player.duck = true; player.h = 52; player.y = ground - 52; }
+        } else if (player.duck) {
+          player.duck = false; player.h = 96; player.y = ground - 96;
+        }
+        if (!player.onGround) {
+          player.vy += 1500 * dt; player.y += player.vy * dt;
+          if (player.y >= ground - player.h) { player.y = ground - player.h; player.vy = 0; player.onGround = true; }
+        }
+      }
+      function updatePlaying(dt) {
+        updatePlayer(dt);
+        const speed = 270 + levelIndex * 18;
+        worldOffset += speed * dt;
+        spawnTimer -= dt; obstacleTimer -= dt;
+        if (collected < LEVEL_GOAL && spawnTimer <= 0) { spawnSparkle(); spawnTimer = 1.35 + Math.random() * .85; }
+        if (obstacleTimer <= 0 && collected < LEVEL_GOAL) { spawnObstacle(); obstacleTimer = 1.55 + Math.random() * .8; }
+
+        for (const o of objects) {
+          o.x -= speed * dt;
+          if (o.kind === 'sparkle') {
+            o.pulse += dt * 5;
+            const px = player.x + player.w / 2, py = player.y + player.h / 2;
+            if (!o.taken && Math.hypot(px - o.x, py - o.y) < 48) {
+              o.taken = true; collected++; bank++; addBurst(o.x, o.y, '#fff1a8', 16); tone(640 + collected * 38, .1, 'sine', .05); updateHUD();
+            }
+          } else if (!o.hit && overlap(player, o, 9)) {
+            o.hit = true; hurt();
+          }
+        }
+        objects = objects.filter(o => o.x > -120 && !o.taken);
+        if (collected >= LEVEL_GOAL) {
+          clearTimer += dt;
+          if (clearTimer > 1.1 && mode === 'playing') {
+            mode = 'paused'; successChime(); steps[levelIndex].classList.add('done');
+            if (levelIndex < levels.length - 1) {
+              const next = levels[levelIndex + 1];
+              showCard(`${levels[levelIndex].name} cleared!`, `Every sparkle is shining. Next up: <strong>${next.name}</strong>, where your dress turns ${['red','orange','yellow','green','blue','indigo','violet'][levelIndex + 1]}.`, 'Next color', () => startLevel(levelIndex + 1));
+            } else {
+              showCard('All seven colors!', `You gathered ${bank} sparkles. The Shadow Snatcher is guarding the captured rainbow—send your magic flying!`, 'Face the villain', beginBoss, true);
+            }
+          }
+        }
+      }
+
+      function updateBoss(dt) {
+        updatePlayer(dt);
+        player.duck = false; player.h = 96; player.y = ground - 96;
+        bossShotTimer -= dt;
+        if (bossShotTimer <= 0) {
+          enemyShots.push({ x: 726, y: 310 + Math.sin(titleTime * 1.7) * 38, vx: -265 - Math.random() * 45, r: 15 });
+          bossShotTimer = 1.45 + Math.random() * .7;
+        }
+        for (const s of shots) { s.x += s.vx * dt; s.life -= dt; s.spin += dt * 10; }
+        const boss = { x: 680, y: 245 + Math.sin(titleTime * 1.7) * 35, w: 116, h: 174 };
+        for (const s of shots) {
+          if (!s.hit && s.x > boss.x && s.x < boss.x + boss.w && s.y > boss.y - 12 && s.y < boss.y + boss.h + 12) {
+            s.hit = true; bossHealth--; addBurst(s.x, s.y, levels[bossHealth % 7].color, 22); shake = 8; tone(240 + (14 - bossHealth) * 24, .12, 'triangle', .05);
+            if (bossHealth <= 0) {
+              mode = 'won'; successChime(); controls.classList.remove('boss'); updateHUD();
+              for (let i = 0; i < 100; i++) addBurst(600 + Math.random() * 220, 190 + Math.random() * 160, levels[i % 7].color, 1);
+              setTimeout(() => showCard('The rainbow is free!', 'Rainbow Girl’s courage and every sparkle you collected broke the shadow cage. The whole sky is glowing again!', 'Play again', restartGame, true), 650);
+            }
+          }
+        }
+        shots = shots.filter(s => s.life > 0 && !s.hit);
+        for (const s of enemyShots) {
+          s.x += s.vx * dt;
+          if (!s.hit && Math.hypot((player.x + player.w / 2) - s.x, (player.y + player.h / 2) - s.y) < 44) { s.hit = true; hurt(); }
+        }
+        enemyShots = enemyShots.filter(s => s.x > -30 && !s.hit);
+        if (bank <= 0 && bossHealth > 0 && shots.length === 0) bank = Math.max(14, bossHealth);
+        updateHUD();
+      }
+      function updateParticles(dt) {
+        for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 180 * dt; p.life -= dt; }
+        particles = particles.filter(p => p.life > 0);
+      }
+
+      function drawCloud(x, y, s, color = 'rgba(255,255,255,.78)') {
+        ctx.fillStyle = color;
+        circle(x, y, 24*s, color); circle(x + 28*s, y - 12*s, 33*s, color); circle(x + 62*s, y, 27*s, color);
+        ctx.fillRect(x, y, 62*s, 24*s);
+      }
+      function drawBackground(level, boss = false) {
+        const grad = ctx.createLinearGradient(0, 0, 0, ground);
+        grad.addColorStop(0, boss ? '#312854' : level.sky);
+        grad.addColorStop(1, boss ? '#9a69a8' : colorMix(level.sky, .25));
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+
+        circle(790, 92, 52, boss ? '#e5d7ff' : 'rgba(255,255,255,.58)');
+        if (!boss) {
+          drawCloud(80 - (worldOffset * .06 % 1160), 95, .9);
+          drawCloud(550 - (worldOffset * .035 % 1250), 150, .65);
+          drawCloud(1020 - (worldOffset * .05 % 1200), 72, .75);
+          ctx.globalAlpha = .16; ctx.fillStyle = level.accent;
+          for (let i = 0; i < 9; i++) {
+            const x = ((i * 143 - worldOffset * .22) % 1200 + 1200) % 1200 - 100;
+            ctx.beginPath(); ctx.moveTo(x, ground); ctx.lineTo(x + 90, 250 - (i%3)*25); ctx.lineTo(x + 180, ground); ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        } else {
+          ctx.globalAlpha = .25;
+          for (let i = 0; i < 34; i++) circle((i * 137) % W, (i * 73) % 290 + 15, 2 + (i % 3), '#fff');
+          ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = boss ? '#392a53' : level.ground; ctx.fillRect(0, ground, W, H - ground);
+        ctx.fillStyle = boss ? '#705377' : colorMix(level.ground, .2); ctx.fillRect(0, ground, W, 12);
+        ctx.globalAlpha = .28; ctx.fillStyle = level.accent;
+        for (let x = -(worldOffset % 90); x < W; x += 90) {
+          ctx.beginPath(); ctx.ellipse(x + 25, 482, 34, 9, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        if (!boss) drawLevelMotifs(level);
+      }
+      function drawLevelMotifs(level) {
+        const y = 410;
+        ctx.globalAlpha = .42;
+        for (let i = 0; i < 8; i++) {
+          const x = ((i * 155 - worldOffset * .42) % 1240 + 1240) % 1240 - 80;
+          ctx.fillStyle = level.accent;
+          if (level.motif === 'flower') {
+            circle(x, y - 18, 5, level.accent); circle(x+8, y-12, 5, level.accent); circle(x-8, y-12, 5, level.accent); circle(x, y-6, 5, level.accent);
+            ctx.fillRect(x-2, y-4, 4, 18);
+          } else if (level.motif === 'leaf') {
+            ctx.beginPath(); ctx.ellipse(x, y-15, 13, 6, -.5, 0, Math.PI*2); ctx.fill();
+          } else if (level.motif === 'wave') {
+            ctx.strokeStyle = level.accent; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(x, y+2, 19, Math.PI, Math.PI*2); ctx.stroke();
+          } else if (level.motif === 'star') {
+            starPath(x, y-14, 10, 5); ctx.fill();
+          } else if (level.motif === 'moon') {
+            circle(x, y-15, 11, level.accent); circle(x+5, y-19, 10, level.ground);
+          } else if (level.motif === 'crystal') {
+            ctx.beginPath(); ctx.moveTo(x,y);ctx.lineTo(x-8,y-18);ctx.lineTo(x,y-31);ctx.lineTo(x+9,y-18);ctx.closePath();ctx.fill();
+          } else {
+            circle(x, y-16, 10, level.accent);
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawGirl(level, boss = false) {
+        if (player.invincible > 0 && Math.floor(player.invincible * 12) % 2) return;
+        const x = player.x, y = player.y, h = player.h;
+        ctx.save();
+        if (!player.onGround) ctx.rotate(-.04);
+        const skin = '#8f553c', hair = '#35211d';
+        // cape / trailing ribbons
+        ctx.fillStyle = colorMix(level.color, -.12);
+        ctx.beginPath(); ctx.moveTo(x+19,y+44); ctx.quadraticCurveTo(x-23,y+64,x-8,y+90); ctx.lineTo(x+28,y+73); ctx.closePath(); ctx.fill();
+        // legs
+        ctx.strokeStyle = skin; ctx.lineWidth = 10; ctx.lineCap = 'round';
+        if (player.duck) { ctx.beginPath();ctx.moveTo(x+25,y+h-22);ctx.lineTo(x+8,y+h-7);ctx.moveTo(x+41,y+h-22);ctx.lineTo(x+56,y+h-6);ctx.stroke(); }
+        else { ctx.beginPath();ctx.moveTo(x+27,y+74);ctx.lineTo(x+22,y+94);ctx.moveTo(x+42,y+74);ctx.lineTo(x+48,y+94);ctx.stroke(); }
+        // dress
+        ctx.fillStyle = level.color; ctx.beginPath(); ctx.moveTo(x+20,y+38);ctx.quadraticCurveTo(x+34,y+30,x+47,y+40);ctx.lineTo(x+57,y+78);ctx.quadraticCurveTo(x+33,y+89,x+10,y+77);ctx.closePath();ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.7)'; starPath(x+34,y+59,7,3.4,5); ctx.fill();
+        // arms
+        ctx.strokeStyle = skin; ctx.lineWidth=9; ctx.beginPath();ctx.moveTo(x+20,y+47);ctx.lineTo(x+4,y+59);ctx.moveTo(x+47,y+47);ctx.lineTo(x+60,y+59);ctx.stroke();
+        // head
+        circle(x+34,y+23,22,skin);
+        ctx.fillStyle=hair;ctx.beginPath();ctx.arc(x+33,y+18,23,Math.PI,Math.PI*2.06);ctx.lineTo(x+13,y+31);ctx.quadraticCurveTo(x+18,y-4,x+42,y);ctx.quadraticCurveTo(x+59,y+5,x+56,y+33);ctx.closePath();ctx.fill();
+        circle(x+21,y+23,7,hair); circle(x+50,y+21,7,hair);
+        circle(x+29,y+23,2.2,'#241716');circle(x+42,y+23,2.2,'#241716');
+        ctx.strokeStyle='#5c2a2f';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+35,y+29,6,.15,Math.PI-.15);ctx.stroke();
+        // crown bow
+        ctx.fillStyle='#ffe36c';ctx.beginPath();ctx.moveTo(x+30,y+2);ctx.lineTo(x+18,y-7);ctx.lineTo(x+19,y+8);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+37,y+2);ctx.lineTo(x+50,y-7);ctx.lineTo(x+48,y+9);ctx.closePath();ctx.fill();circle(x+34,y+2,5,'#ffbd38');
+        ctx.restore();
+      }
+      function drawSparkle(o) {
+        const pulse = 1 + Math.sin(o.pulse) * .12;
+        ctx.save();ctx.translate(o.x,o.y);ctx.scale(pulse,pulse);
+        ctx.shadowColor='#fff7a0';ctx.shadowBlur=18;ctx.fillStyle='#fff6a5';starPath(0,0,19,7,4);ctx.fill();
+        ctx.shadowBlur=0;ctx.fillStyle='#ffffff';starPath(-4,-5,7,2.5,4);ctx.fill();ctx.restore();
+      }
+      function drawObstacle(o, level) {
+        if (o.type === 'low') {
+          ctx.fillStyle = level.accent;
+          ctx.beginPath();ctx.moveTo(o.x,o.y+o.h);ctx.lineTo(o.x+7,o.y+14);ctx.lineTo(o.x+20,o.y+27);ctx.lineTo(o.x+30,o.y);ctx.lineTo(o.x+42,o.y+25);ctx.lineTo(o.x+o.w,o.y+11);ctx.lineTo(o.x+o.w,o.y+o.h);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.moveTo(o.x+30,o.y);ctx.lineTo(o.x+42,o.y+25);ctx.lineTo(o.x+34,o.y+20);ctx.closePath();ctx.fill();
+        } else {
+          ctx.fillStyle = level.accent;
+          ctx.beginPath();ctx.ellipse(o.x+39,o.y+15,39,15,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(o.x+28,o.y+10,14,5,-.15,0,Math.PI*2);ctx.fill();
+          ctx.strokeStyle=level.accent;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(o.x+12,o.y+25);ctx.lineTo(o.x+5,o.y+42);ctx.moveTo(o.x+65,o.y+25);ctx.lineTo(o.x+74,o.y+42);ctx.stroke();
+        }
+      }
+      function drawBoss() {
+        // captive rainbow and cage
+        const cols = levels.map(l=>l.color);
+        ctx.lineWidth=9;
+        cols.forEach((c,i)=>{ctx.strokeStyle=c;ctx.beginPath();ctx.arc(822,340,78-i*9,Math.PI,Math.PI*2);ctx.stroke();});
+        ctx.strokeStyle='#241d39';ctx.lineWidth=9;
+        for(let x=756;x<=888;x+=22){ctx.beginPath();ctx.moveTo(x,225);ctx.lineTo(x,410);ctx.stroke();}
+        ctx.beginPath();ctx.moveTo(744,410);ctx.lineTo(900,410);ctx.stroke();
+        // villain
+        const bx=680, by=245+Math.sin(titleTime*1.7)*35;
+        ctx.fillStyle='#2e213e';ctx.beginPath();ctx.moveTo(bx+20,by+56);ctx.quadraticCurveTo(bx+57,by+22,bx+96,by+57);ctx.lineTo(bx+112,by+164);ctx.quadraticCurveTo(bx+62,by+190,bx+4,by+164);ctx.closePath();ctx.fill();
+        circle(bx+59,by+49,42,'#3d2a50');
+        ctx.fillStyle='#111018';ctx.beginPath();ctx.arc(bx+58,by+46,38,Math.PI,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#ff728f';ctx.beginPath();ctx.moveTo(bx+38,by+48);ctx.lineTo(bx+51,by+44);ctx.lineTo(bx+50,by+53);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(bx+79,by+48);ctx.lineTo(bx+66,by+44);ctx.lineTo(bx+67,by+53);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#6b4b81';ctx.beginPath();ctx.moveTo(bx+38,by+18);ctx.lineTo(bx+20,by-18);ctx.lineTo(bx+49,by+8);ctx.lineTo(bx+60,by-25);ctx.lineTo(bx+69,by+8);ctx.lineTo(bx+99,by-18);ctx.lineTo(bx+78,by+20);ctx.closePath();ctx.fill();
+        // boss health
+        ctx.fillStyle='rgba(20,12,30,.55)';rr(657,35,208,28,14);ctx.fill();
+        ctx.fillStyle='#ff6f91';rr(663,41,196*(bossHealth/14),16,8);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='700 14px Nunito, sans-serif';ctx.textAlign='center';ctx.fillText('SHADOW SNATCHER',761,25);
+      }
+      function drawBossShot(s) {
+        const g=ctx.createRadialGradient(s.x-4,s.y-4,2,s.x,s.y,s.r);g.addColorStop(0,'#aa86d5');g.addColorStop(1,'#21162f');circle(s.x,s.y,s.r,g);
+        ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(s.x,s.y,s.r+5,titleTime*3,titleTime*3+3.8);ctx.stroke();
+      }
+      function drawShot(s) {
+        ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.spin);ctx.shadowColor='#fff7a0';ctx.shadowBlur=18;ctx.fillStyle=levels[Math.abs(Math.floor(s.spin))%7].color;starPath(0,0,18,8,5);ctx.fill();ctx.restore();
+      }
+      function drawParticles() {
+        for(const p of particles){ctx.globalAlpha=Math.max(0,p.life);circle(p.x,p.y,p.size,p.color);}ctx.globalAlpha=1;
+      }
+      function drawLabel(level) {
+        ctx.fillStyle='rgba(34,23,48,.72)';rr(28,28,244,52,18);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='700 22px Fredoka, sans-serif';ctx.textAlign='left';ctx.fillText(`${levelIndex+1} · ${level.name}`,48,61);
+      }
+      function draw() {
+        const level = levels[Math.min(levelIndex,6)];
+        ctx.save();
+        if (shake > 0) { ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake); shake *= .86; if(shake<.2) shake=0; }
+        drawBackground(level, mode === 'boss' || mode === 'won');
+        if (mode === 'boss' || mode === 'won') {
+          drawBoss();
+          for(const s of enemyShots) drawBossShot(s);
+          for(const s of shots) drawShot(s);
+          drawGirl(level,true);
+        } else {
+          for(const o of objects) o.kind === 'sparkle' ? drawSparkle(o) : drawObstacle(o,level);
+          drawGirl(level);
+          drawLabel(level);
+        }
+        drawParticles();
+        if(hurtFlash>0){ctx.fillStyle=`rgba(255,72,99,${Math.min(.38,hurtFlash)})`;ctx.fillRect(0,0,W,H);}
+        ctx.restore();
+      }
+      function loop(t) {
+        const dt = Math.min(.034, (t-last)/1000 || .016); last=t; titleTime += dt; hurtFlash=Math.max(0,hurtFlash-dt); updateParticles(dt);
+        if(mode==='playing') updatePlaying(dt); else if(mode==='boss') updateBoss(dt);
+        draw(); requestAnimationFrame(loop);
+      }
+      updateHUD(); requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#221d5a">
+  <title>{{GAME_TITLE}}</title>
+  <style>
+    :root{font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;color:#25234a;background:#f5f0ff}
+    *{box-sizing:border-box}body{margin:0;padding:15px;min-height:100dvh;display:grid;place-items:center}
+    main{width:min(850px,100%);text-align:center}h1{font-size:clamp(30px,6vw,48px);margin:0 0 8px}p{line-height:1.5}
+    .status{font-weight:800;margin:8px 0 13px}.screen{position:relative;border:5px solid #5c4cd0;border-radius:20px;overflow:hidden;background:#241c55}
+    canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none}
+    .overlay{position:absolute;inset:0;background:#150d46c9;display:grid;place-items:center;padding:15px;color:#fff}
+    .overlay[hidden]{display:none}.overlay-inner{max-width:330px}.overlay h2{font-size:clamp(22px,4vw,35px);margin:0 0 8px}
+    button{min-height:52px;min-width:96px;font:inherit;font-weight:900;border:0;border-radius:14px;cursor:pointer;touch-action:none}
+    button:focus-visible{outline:4px solid #f4cb67;outline-offset:3px}.start{color:#22204c;background:#ffdb73;margin-top:12px;padding:0 20px}
+    .controls{display:flex;gap:12px;justify-content:center;margin-top:15px}.controls button{background:#6c58d9;color:#fff;flex:1;max-width:190px}
+    .credit{font-size:12px;color:#646381;margin-top:15px}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>{{GAME_TITLE}}</h1>
+    <p>Catch ten stars to win! Move the basket left or right and don't let too many stars fall.</p>
+    <div class="status" role="status" aria-live="polite"><span id="score">Stars: 0 / 10</span> · <span id="lives">Misses left: 3</span></div>
+    <div class="screen">
+      <canvas id="game" width="800" height="450" aria-label="2D game: move a basket left and right to catch falling stars"></canvas>
+      <div class="overlay" id="overlay"><div class="overlay-inner"><h2 id="message">Ready to catch stars?</h2><p>Use ← → or the big buttons. Catch 10 stars before you miss 3.</p><button class="start" id="start">Start game</button></div></div>
+    </div>
+    <div class="controls" aria-label="Movement controls"><button id="left" aria-label="Move left">◀ Left</button><button id="right" aria-label="Move right">Right ▶</button></div>
+    <p class="credit">Idea &amp; vision: <strong>{{AUTHOR_NAME}}</strong> · Created using: <strong>{{CREATED_USING}}</strong></p>
+  </main>
+  <script>
+    (()=>{'use strict';
+      const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d');
+      const scoreEl=document.querySelector('#score'),livesEl=document.querySelector('#lives');
+      const overlay=document.querySelector('#overlay'),message=document.querySelector('#message');
+      const start=document.querySelector('#start'),keys={left:false,right:false};
+      const W=canvas.width,H=canvas.height;
+      let mode='ready',score=0,lives=3,playerX=W/2,stars=[],spawn=0,last=0;
+      function begin(){mode='playing';score=0;lives=3;playerX=W/2;stars=[];spawn=0;overlay.hidden=true;updateStatus();}
+      function updateStatus(){scoreEl.textContent=`Stars: ${score} / 10`;livesEl.textContent=`Misses left: ${lives}`;}
+      function finish(won){mode='done';message.textContent=won?'You caught them all! 🌟':'Try again, star catcher!';start.textContent='Play again';overlay.hidden=false;}
+      function update(dt){
+        if(keys.left)playerX-=390*dt;if(keys.right)playerX+=390*dt;
+        playerX=Math.max(54,Math.min(W-54,playerX));
+        spawn-=dt;if(spawn<=0){stars.push({x:20+Math.random()*(W-40),y:-20,r:12});spawn=.68;}
+        for(const s of stars){s.y+=195*dt;
+          if(s.y>H-64&&s.y<H-35&&Math.abs(s.x-playerX)<56){s.caught=true;score++;updateStatus();if(score>=10){finish(true);break;}}
+          else if(s.y>H+14&&!s.caught){s.caught=true;lives--;updateStatus();if(lives<=0){finish(false);break;}}
+        }
+        stars=stars.filter(s=>!s.caught);
+      }
+      function draw(){
+        const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#1c1a58');grad.addColorStop(1,'#4643a0');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+        for(let i=0;i<24;i++){ctx.fillStyle='#ffffff80';ctx.fillRect((i*137)%W,(i*71)%310,3,3);}
+        ctx.fillStyle='#c1eaff';ctx.fillRect(0,H-32,W,32);
+        ctx.fillStyle='#facc68';ctx.beginPath();ctx.roundRect(playerX-54,H-69,108,37,15);ctx.fill();
+        for(const s of stars){ctx.save();ctx.translate(s.x,s.y);ctx.fillStyle='#fff0a2';ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?6:15;if(i===0)ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);else ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();}
+      }
+      function frame(now){const dt=Math.min((now-last)/1000||0,.05);last=now;if(mode==='playing')update(dt);draw();requestAnimationFrame(frame);}
+      function hold(id,key){const b=document.querySelector(id);function down(e){e.preventDefault();keys[key]=true;}function up(){keys[key]=false;}b.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(t=>b.addEventListener(t,up));}
+      hold('#left','left');hold('#right','right');start.addEventListener('click',begin);
+      window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','KeyA','KeyD'].includes(e.code))e.preventDefault();if(e.code==='ArrowLeft'||e.code==='KeyA')keys.left=true;if(e.code==='ArrowRight'||e.code==='KeyD')keys.right=true;});
+      window.addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')keys.left=false;if(e.code==='ArrowRight'||e.code==='KeyD')keys.right=false;});
+      window.addEventListener('blur',()=>{keys.left=keys.right=false;});
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>

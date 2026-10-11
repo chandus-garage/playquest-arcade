@@ -1,0 +1,28 @@
+[
+  {
+    "slug": "rainbow-danger",
+    "title": "Rainbow Danger",
+    "author": "Sriya Yalamanchili",
+    "authorRole": "Idea and vision",
+    "createdUsing": "Muse AI",
+    "category": "Colorful runner",
+    "description": "Leap, duck, and collect sparkles across seven rainbow lands to rescue the colors.",
+    "controls": "Jump and Duck · keyboard or touch",
+    "cover": "assets/covers/rainbow-danger.svg",
+    "accent": "#f37cae",
+    "tags": ["rainbow", "runner", "collect", "jump", "duck", "adventure"]
+  },
+  {
+    "slug": "astro-adventure",
+    "title": "Astro Adventure",
+    "author": "Sriyaan Yalamanchili",
+    "authorRole": "Idea and vision",
+    "createdUsing": "Muse AI",
+    "category": "Space platformer",
+    "description": "Explore four worlds, gather Star Sparks, power up, and rescue the galaxy from black holes.",
+    "controls": "Move, Jump, Punch · keyboard or touch",
+    "cover": "assets/covers/astro-adventure.svg",
+    "accent": "#79bafb",
+    "tags": ["space", "galaxy", "platformer", "stars", "planets", "jump", "adventure"]
+  }
+]

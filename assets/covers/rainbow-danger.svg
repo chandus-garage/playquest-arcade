@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="title desc">
+<title id="title">Rainbow Danger cover</title><desc id="desc">A cheerful hero jumping over colorful mountains toward a rainbow of sparkles.</desc>
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#fff0f8"/><stop offset="1" stop-color="#bfdffc"/></linearGradient>
+ <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#84dfb4"/><stop offset="1" stop-color="#24a98b"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#503877" flood-opacity=".22"/></filter>
+</defs>
+<rect width="800" height="450" fill="url(#sky)"/>
+<circle cx="662" cy="95" r="54" fill="#ffe39b"/>
+<g fill="none" stroke-linecap="round" opacity=".95">
+<path d="M88 339 A271 271 0 0 1 630 339" stroke="#f35779" stroke-width="20"/>
+<path d="M111 339 A248 248 0 0 1 607 339" stroke="#ffa354" stroke-width="20"/>
+<path d="M134 339 A225 225 0 0 1 584 339" stroke="#ffe362" stroke-width="20"/>
+<path d="M157 339 A202 202 0 0 1 561 339" stroke="#65cd85" stroke-width="20"/>
+<path d="M180 339 A179 179 0 0 1 538 339" stroke="#6ab8f6" stroke-width="20"/>
+<path d="M203 339 A156 156 0 0 1 515 339" stroke="#ae7ee3" stroke-width="20"/>
+</g>
+<path d="M0 361 Q120 280 244 340 Q361 270 490 352 Q642 279 800 341 V450 H0Z" fill="#99ecb8"/>
+<path d="M0 390 Q136 341 292 388 Q470 308 608 379 Q740 342 800 387 V450 H0Z" fill="url(#hill)"/>
+<g fill="#fff" opacity=".85"><ellipse cx="140" cy="96" rx="63" ry="19"/><circle cx="104" cy="86" r="29"/><circle cx="157" cy="77" r="33"/><ellipse cx="703" cy="195" rx="50" ry="15"/><circle cx="683" cy="186" r="24"/></g>
+<g fill="#fff5a4" stroke="#f9bb40" stroke-width="4"><path d="M640 226l10 24 24 10-24 10-10 24-10-24-24-10 24-10z"/><path d="M270 130l8 17 18 7-18 7-8 19-7-19-18-7 18-7z"/></g>
+<g filter="url(#shadow)" transform="translate(332 223) rotate(-13)">
+<ellipse cx="0" cy="114" rx="53" ry="13" fill="#442574" opacity=".18"/>
+<path d="M-31 70L-48 115M26 67L40 111" stroke="#64427f" stroke-width="17" stroke-linecap="round"/>
+<path d="M-23 23 Q-49 46 -29 82 L30 82 Q51 45 21 23Z" fill="#f862a0" stroke="#592f85" stroke-width="5"/>
+<path d="M-27 35L-58 66M24 40L59 8" stroke="#ffd6b3" stroke-width="14" stroke-linecap="round"/>
+<circle cx="0" cy="-8" r="38" fill="#ffd7b2" stroke="#592f85" stroke-width="5"/>
+<path d="M-38-12 Q-46-67 1-55 Q47-52 37-11 Q24-37-1-34 Q-18-24-38-12" fill="#6b3f91"/>
+<circle cx="-12" cy="-8" r="4" fill="#30264a"/><circle cx="13" cy="-8" r="4" fill="#30264a"/><path d="M-11 10Q1 19 14 8" stroke="#ce6b78" stroke-width="4" fill="none" stroke-linecap="round"/>
+</g>
+<g fill="#ffe59b"><circle cx="84" cy="245" r="5"/><circle cx="540" cy="85" r="6"/><circle cx="730" cy="290" r="5"/></g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="title desc">
+<title id="title">Astro Adventure cover</title><desc id="desc">An astronaut exploring a bright planet with stars, Saturn's rings and a friendly cosmic robot.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#121b51"/><stop offset="1" stop-color="#422b83"/></linearGradient><radialGradient id="planet"><stop stop-color="#6be6ff"/><stop offset="1" stop-color="#3f81db"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="7"/></filter></defs>
+<rect width="800" height="450" fill="url(#bg)"/>
+<g fill="#fff" opacity=".8"><circle cx="73" cy="59" r="3"/><circle cx="152" cy="145" r="2.5"/><circle cx="258" cy="80" r="2"/><circle cx="344" cy="149" r="4"/><circle cx="719" cy="48" r="3"/><circle cx="671" cy="185" r="2.5"/><circle cx="530" cy="58" r="2"/><circle cx="763" cy="282" r="3"/><circle cx="48" cy="310" r="3"/><circle cx="234" cy="278" r="3"/></g>
+<circle cx="622" cy="121" r="74" fill="#ffa25f"/>
+<ellipse cx="621" cy="122" rx="116" ry="29" transform="rotate(-24 621 122)" fill="none" stroke="#ffe5a7" stroke-width="13" opacity=".93"/>
+<circle cx="124" cy="278" r="78" fill="url(#planet)"/>
+<path d="M83 238 Q120 223 142 256 T194 266 Q176 324 117 351 Q92 312 67 316Z" fill="#72e2ad"/>
+<path d="M0 379 Q166 322 343 388 Q547 325 800 380 V450 H0Z" fill="#343d81"/>
+<path d="M0 408 Q205 365 410 411 Q600 367 800 420 V450H0Z" fill="#5664bd"/>
+<g transform="translate(405 205)">
+ <ellipse cx="0" cy="171" rx="91" ry="17" fill="#080d2a" opacity=".32"/>
+ <path d="M-34 97L-47 146M35 97L50 147" stroke="#dde9fc" stroke-width="23" stroke-linecap="round"/>
+ <path d="M-44 17L-73 70M44 17L77-7" stroke="#eaf2fc" stroke-width="22" stroke-linecap="round"/>
+ <rect x="-48" y="8" width="96" height="105" rx="34" fill="#f0f6ff" stroke="#56b8e4" stroke-width="6"/>
+ <rect x="-27" y="36" width="54" height="29" rx="12" fill="#ffc956"/>
+ <circle cy="-40" r="68" fill="#d9f5ff" stroke="#f8ffff" stroke-width="12"/>
+ <rect x="-48" y="-74" width="96" height="73" rx="33" fill="#164c82"/>
+ <circle cx="-19" cy="-40" r="7" fill="#96efff"/><circle cx="20" cy="-40" r="7" fill="#96efff"/><path d="M-13-22Q0-11 13-22" stroke="#a5f2ff" fill="none" stroke-linecap="round" stroke-width="5"/>
+</g>
+<g fill="#ffdb6d"><path d="M235 174l11 31 31 11-31 11-11 31-11-31-31-11 31-11z"/><path d="M706 276l9 25 25 9-25 9-9 25-9-25-25-9 25-9z"/></g>
+<circle cx="764" cy="121" r="12" fill="#82ddff"/><circle cx="256" cy="361" r="8" fill="#c8a3ff"/>
+</svg>
